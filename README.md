@@ -5,15 +5,15 @@ A powerful CLI tool to accelerate Nest.js development by scaffolding features, c
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 [![NPM Version](https://img.shields.io/npm/v/nextjs-app-toolkit.svg)](https://www.npmjs.com/package/nextjs-app-toolkit)
 
-Next.js App Toolkit is a command-line interface (CLI) designed to supercharge your Next.js development workflow. Eliminate repetitive boilerplate setup and generate feature-rich modules instantly, allowing you to focus on building core application logic.
+Nest.js Toolkit CLI is a command-line interface (CLI) built to accelerate your Nest.js development workflow. It removes repetitive boilerplate and lets you generate powerful modules and components instantly, so you can focus on building your application's core features.
 
 ## Features
 
-- **Rapid Scaffolding:** Generate entire feature modules, including hooks, services, state management, types, and configs, with a single command.
-- **Best Practices Included:** The generated code follows modern Next.js App Router conventions, including templates for Server Actions, `revalidateTag` for caching, and React Query hooks.
-- **Type-Safe by Default:** All generated files are TypeScript-based to ensure type safety from the ground up.
-- **Developer-Friendly:** Provides a simple and intuitive command structure that's easy to remember and use.
-- **Extensible Architecture:** Designed to be easily expanded with new generators for components, styles, contexts, and more.
+- **Rapid Scaffolding:** Instantly generate robust NestJS modules and supporting files with a single command.
+- **Best Practices Included:** All generated code follows modern NestJS conventions and project structure.
+- **Type-Safe by Default:** Every file is written in TypeScript to ensure maximum type safety.
+- **Developer-Friendly:** Simple, memorable commands make scaffolding features fast and intuitive.
+- **Extensible Architecture:** Easily add new generators for modules, services, decorators, and more as your project grows.
 
 ---
 
@@ -72,9 +72,9 @@ libs/nest-uniform-response/
 
 ## Commands API
 
-| Command                      | Alias | Description                                                                                                   |
-| :--------------------------- | :---- | :------------------------------------------------------------------------------------------------------------ |
-| `init:uniform-response`      | `ir`  | Initializes a robust NestJS Uniform Response setup in `libs/nest-uniform-response/`.                          |
+| Command                 | Alias | Description                                                                          |
+| :---------------------- | :---- | :----------------------------------------------------------------------------------- |
+| `init:uniform-response` | `ir`  | Initializes a robust NestJS Uniform Response setup in `libs/nest-uniform-response/`. |
 
 ---
 
