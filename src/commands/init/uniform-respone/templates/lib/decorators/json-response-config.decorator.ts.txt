@@ -1,0 +1,22 @@
+import { SetMetadata } from '@nestjs/common';
+import { NestUniformResponseConfig } from '../types/json.response.types';
+
+/**
+ * A key used to store metadata for the RawResponse decorator.
+ */
+export const NEST_UNIFORM_RESPONSE_CONFIG = 'nestUniformResponseConfig';
+
+/**
+ * Decorator to bypass the global `ResponseInterceptor`.
+ * Any controller method decorated with `@RawResponse()` will return its data
+ * directly, without being wrapped in the standard success JSON structure.
+ *
+ * @example
+ * @Get('raw-data')
+ * @RawResponse()
+ * getRawData() {
+ * return { message: 'This will be the raw response body' };
+ * }
+ */
+export const NestUniformResponse = (config: NestUniformResponseConfig) =>
+  SetMetadata(NEST_UNIFORM_RESPONSE_CONFIG, config);

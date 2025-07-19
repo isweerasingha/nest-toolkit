@@ -1,0 +1,46 @@
+export type ErrorPageConfig = {
+  /**
+   * If `true`, the error page will be enabled.
+   * @default false
+   */
+  enabled: boolean;
+
+  /**
+   * The template to use for the error page.
+   * Should use a valid render engine (Pug, EJS, Handlebars, etc.)
+   * Should config in main.ts and nest-cli.json.
+   * @example
+   * main.ts
+   * app.setBaseViewsDir(join(__dirname, '..', 'views'));
+   * app.setViewEngine('pug');
+   *
+   * nest-cli.json
+   * "assets": ["apps/auth/views"],
+   * @default 'error'
+   */
+  template: string;
+
+  /**
+   * The title to use for the error page.
+   * @default 'Error'
+   */
+  title?: string;
+
+  /**
+   * The error message to use for the error page.
+   * @default message in exception
+   */
+  errorMessage?: string;
+
+  /**
+   * The return URL to use for the error page.
+   * @default '/'
+   */
+  returnUrl?: string;
+
+  /**
+   * If `true`, the error page will be rendered if the request accepts any content type.
+   * @default false
+   */
+  allowAnyAccept?: boolean;
+};

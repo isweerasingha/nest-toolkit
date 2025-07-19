@@ -1,0 +1,13 @@
+import { ValueProvider } from '@nestjs/common';
+import { NEST_UNIFORM_CONFIG_PROVIDER } from '../constants/providers.constant';
+import { NestUniformConfig } from '../types/providers.types';
+
+export class NestUniformConfigProvider implements ValueProvider {
+  provide: string;
+  useValue: NestUniformConfig;
+
+  constructor(private readonly config: NestUniformConfig) {
+    this.provide = NEST_UNIFORM_CONFIG_PROVIDER;
+    this.useValue = config;
+  }
+}

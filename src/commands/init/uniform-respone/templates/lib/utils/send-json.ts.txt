@@ -1,0 +1,97 @@
+import { Response } from 'express';
+
+/**
+ * A utility class for sending JSON responses.
+ * @description This class is used to send JSON responses to the client.
+ * @example
+ * const sendJson = new SendJsonUtil(response, request);
+ * sendJson.success(data);
+ * sendJson.created(data);
+ * sendJson.failed(data);
+ */
+export class NestUniformResponseUtil {
+  private readonly DEFAULT_STATUS_CODE = 200;
+  private readonly DEFAULT_CREATED_STATUS_CODE = 201;
+  private readonly DEFAULT_FAILED_STATUS_CODE = 400;
+  private readonly response: Response;
+  private readonly request: Request;
+
+  /**
+   * @description Creates a new instance of the SendJsonUtil class.
+   * @param response - The response object.
+   * @param request - The request object.
+   */
+  constructor(response: Response, request: Request) {
+    this.response = response;
+    this.request = request;
+  }
+
+  /**
+   * @description Sends a JSON response to the client.
+   * @param response - The response object.
+   * @param data - The data to send to the client.
+   * @param statusCode - The status code to send to the client.
+   * @example
+   * NestUniformResponseUtil.send(response, 200, {
+   *   message: 'User with id 1',
+   * });
+   */
+  static send(
+    response: Response,
+    statusCode: number,
+    data: unknown,
+    success: boolean = true,
+  ) {
+    return response.status(statusCode).json({
+      success,
+      statusCode,
+      timestamp: new Date().toISOString(),
+      data,
+    });
+  }
+
+  /**
+   * @description Sends a success response to the client.
+   * @param data - The data to send to the client.
+   * @param statusCode - The status code to send to the client.
+   */
+  success(data: unknown, statusCode: number = this.DEFAULT_STATUS_CODE) {
+    return this.response.status(statusCode).json({
+      success: true,
+      statusCode,
+      timestamp: new Date().toISOString(),
+      data,
+    });
+  }
+
+  /**
+   * @description Sends a created response to the client.
+   * @param data - The data to send to the client.
+   * @param statusCode - The status code to send to the client.
+   */
+  created(
+    data: unknown,
+    statusCode: number = this.DEFAULT_CREATED_STATUS_CODE,
+  ) {
+    return this.response.status(statusCode).json({
+      success: true,
+      statusCode,
+      timestamp: new Date().toISOString(),
+      data,
+    });
+  }
+
+  /**
+   * @description Sends a failed response to the client.
+   * @param data - The data to send to the client.
+   * @param statusCode - The status code to send to the client.
+   */
+  failed(data: unknown, statusCode: number = this.DEFAULT_FAILED_STATUS_CODE) {
+    return this.response.status(statusCode).json({
+      success: false,
+      statusCode,
+      timestamp: new Date().toISOString(),
+      data,
+    });
+  }
+}

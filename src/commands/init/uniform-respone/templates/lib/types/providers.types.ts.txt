@@ -1,0 +1,9 @@
+import { NestUniformExceptionConfig } from './exception.types';
+import { NestUniformResponseConfig } from './json.response.types';
+import { ErrorPageConfig } from './error-page.type';
+
+export interface NestUniformConfig {
+  exception?: NestUniformExceptionConfig;
+  response?: NestUniformResponseConfig;
+  errorPage?: ErrorPageConfig;
+}

@@ -1,0 +1,78 @@
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  Inject,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { IS_NEST_UNIFORM_RAW_RESPONSE } from '../decorators/raw-response.decorator';
+import { NEST_UNIFORM_CONFIG_PROVIDER } from '../constants/providers.constant';
+import { NestUniformConfig } from '../types/providers.types';
+import { Response } from 'express';
+import { NestUniformResponseConfig } from '../types/json.response.types';
+import { NEST_UNIFORM_RESPONSE_CONFIG } from '../decorators/json-response-config.decorator';
+import { IS_NEST_UNIFORM_JSON_RESPONSE } from '../decorators/json-response.decorator';
+
+export interface SuccessResponse<T> {
+  success: true;
+  statusCode: number;
+  data: T;
+}
+
+/**
+ * Intercepts successful responses and wraps them in a standardized
+ * JSON structure. Can be bypassed by using the @RawResponse() decorator.
+ */
+@Injectable()
+export class ResponseInterceptor<T>
+  implements NestInterceptor<T, SuccessResponse<T>>
+{
+  constructor(
+    private readonly reflector: Reflector,
+    @Inject(NEST_UNIFORM_CONFIG_PROVIDER)
+    private readonly config: NestUniformConfig,
+  ) {}
+
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const isRawResponse = this.reflector.getAllAndOverride<boolean>(
+      IS_NEST_UNIFORM_RAW_RESPONSE,
+      [context.getHandler(), context.getClass()],
+    );
+
+    const isJsonResponse = this.reflector.getAllAndOverride<boolean>(
+      IS_NEST_UNIFORM_JSON_RESPONSE,
+      [context.getHandler(), context.getClass()],
+    );
+
+    const jsonResponseConfig =
+      this.reflector.getAllAndOverride<NestUniformResponseConfig>(
+        NEST_UNIFORM_RESPONSE_CONFIG,
+        [context.getHandler(), context.getClass()],
+      );
+
+    const enableWrapper =
+      isJsonResponse ??
+      isRawResponse ??
+      jsonResponseConfig?.useJsonWrapper ??
+      this.config.response?.useJsonWrapper;
+
+    if (!enableWrapper) {
+      return next.handle();
+    }
+
+    const httpContext = context.switchToHttp();
+    const response = httpContext.getResponse<Response>();
+
+    return next.handle().pipe(
+      map((data: T) => ({
+        success: true,
+        statusCode: response.statusCode,
+        timestamp: new Date().toISOString(),
+        data: data,
+      })),
+    );
+  }
+}

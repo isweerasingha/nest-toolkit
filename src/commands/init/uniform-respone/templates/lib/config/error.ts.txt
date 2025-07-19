@@ -1,0 +1,11 @@
+import { HttpStatus } from '@nestjs/common';
+import { defineErrorMessages } from '../utils/define-errors';
+
+export const NEST_UNIFORM_ERROR_CODES = defineErrorMessages({
+  INTERNAL_ERROR: {
+    code: 'UNEXPECTED_ERROR',
+    message: 'An unexpected error occurred.',
+    httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'NestUniform caught an unknown error.',
+  },
+});

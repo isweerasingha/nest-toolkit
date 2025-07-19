@@ -1,0 +1,61 @@
+import { HttpStatus } from '@nestjs/common';
+
+/**
+ * Defines the structure for a single error message configuration.
+ */
+export type ErrorMessageConfig = {
+  /**
+   * The unique code for the error.
+   */
+  readonly code: string;
+  /**
+   * The message for the error.
+   */
+  readonly message: string;
+  /**
+   * The HTTP status code for the error.
+   */
+  readonly httpStatus: HttpStatus;
+  /**
+   * Optional field for more detailed internal descriptions.
+   */
+  readonly description?: string;
+
+  /**
+   * The error message configuration.
+   */
+  readonly config?: NestUniformExceptionConfig;
+};
+
+/**
+ * A generic type for a collection of error message configurations.
+ * Using Record<string, T> ensures that all values in the object
+ * conform to the T type.
+ */
+export type ErrorMessagesSet<T extends ErrorMessageConfig> = Record<string, T>;
+
+export type NestUniformExceptionConfig = {
+  /**
+   * If `true`, the exception filter will return the error message with the error code.
+   * @default false
+   */
+  messageWithErrorCode?: boolean;
+
+  /**
+   * If `true`, the exception filter will catch validation errors.
+   * @default false
+   */
+  catchValidation?: boolean;
+
+  /**
+   * If `true`, the exception filter will catch unknown errors.
+   * @default true
+   */
+  catchUnknown?: boolean;
+
+  /**
+   * The error code to use for unknown errors.
+   * @default 'UNEXPECTED_ERROR'
+   */
+  unknownErrorMessage?: ErrorMessageConfig;
+};

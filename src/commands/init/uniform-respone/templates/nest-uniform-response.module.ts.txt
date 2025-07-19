@@ -1,0 +1,36 @@
+import { DynamicModule, Module } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { NestUniformResponseOptions } from './lib/types/module-options.type';
+import { NestUniformConfigProvider } from './lib/providers/config.provider';
+import { ResponseInterceptor } from './lib/interceptors/response.interceptor';
+import { NestUniformExceptionFilter } from './lib/filters/exception.filter';
+
+@Module({})
+export class NestUniformResponseModule {
+  /**
+   * Registers the module with the provided error codes.
+   * This setup provides the DomainExceptionFilter globally.
+   * @param options - Configuration options for the module.
+   * @returns A dynamic module.
+   */
+  static forRoot(options: NestUniformResponseOptions): DynamicModule {
+    const { isGlobal, config } = options;
+
+    return {
+      module: NestUniformResponseModule,
+      global: isGlobal ?? false,
+      providers: [
+        {
+          provide: APP_FILTER,
+          useClass: NestUniformExceptionFilter,
+        },
+
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: ResponseInterceptor,
+        },
+        new NestUniformConfigProvider(config || {}),
+      ],
+    };
+  }
+}

@@ -1,0 +1,24 @@
+import { ErrorMessageConfig, ErrorMessagesSet } from '../types/exception.types';
+
+/**
+ * A helper function to define error messages with strong typing.
+ * This function provides type inference and autocompletion when defining
+ * error sets, while ensuring they conform to the ErrorMessagesSet structure.
+ *
+ * @param messages - An object where keys are error names and values are ErrorMessageConfig.
+ * @returns The same messages object, but with its type inferred.
+ *
+ * @example
+ * export const AUTH_ERRORS = defineErrorMessages({
+ * INVALID_CREDENTIALS: {
+ * code: 'AUTH_001',
+ * message: 'Invalid email or password.',
+ * httpStatus: HttpStatus.UNAUTHORIZED,
+ * }
+ * });
+ */
+export function defineErrorMessages<
+  T extends ErrorMessagesSet<ErrorMessageConfig>,
+>(messages: T): T {
+  return messages;
+}

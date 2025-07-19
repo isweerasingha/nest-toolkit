@@ -1,0 +1,238 @@
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  BadRequestException,
+  Inject,
+  HttpStatus,
+  HttpException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { NEST_UNIFORM_CONFIG_PROVIDER } from '../constants/providers.constant';
+import { NestUniformConfig } from '../types/providers.types';
+import { NestUniformError } from '../errors/base.error';
+import { NestUniformExceptionConfig } from '../types/exception.types';
+import { NEST_UNIFORM_ERROR_CODES } from '../config/error';
+import { NestUniformJson } from '../types/json.response.types';
+
+/**
+ * Catches exceptions and formats the response into a structured JSON object.
+ */
+@Catch()
+export class NestUniformExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(NestUniformExceptionFilter.name);
+
+  constructor(
+    @Inject(NEST_UNIFORM_CONFIG_PROVIDER)
+    private readonly config: NestUniformConfig,
+  ) {}
+
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+
+    this.logger.error(
+      (exception as Error).message,
+      (exception as Error).stack,
+      exception,
+    );
+
+    if (this._shouldRenderErrorPage(exception, request)) {
+      return response
+        .status(HttpStatus.NOT_FOUND)
+        .render(this.config.errorPage?.template || 'error', {
+          title: this.config.errorPage?.title || 'Error',
+          errorMessage:
+            this.config.errorPage?.errorMessage || (exception as Error).message,
+          returnUrl: this.config.errorPage?.returnUrl || '/',
+        });
+    }
+
+    if (exception instanceof BadRequestException) {
+      const status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+      if (this.config.exception?.catchValidation !== true) {
+        return response.status(status).send(exceptionResponse);
+      }
+
+      const { message, details } = this._formatErrorResponse(
+        exceptionResponse as string | { message: string[] },
+      );
+
+      const errorResponse = this._createErrorResponse(
+        status,
+        'BAD_REQUEST',
+        message,
+        request,
+        details,
+      );
+
+      return response.status(status).json(errorResponse);
+    }
+
+    if (exception instanceof NestUniformError) {
+      const status = exception.httpStatus || HttpStatus.INTERNAL_SERVER_ERROR;
+
+      const { message } = this._getConditionResult({
+        exception,
+        callingConfig: exception.config,
+        messageConfig: exception.messageConfig,
+        globalConfig: this.config.exception,
+      });
+
+      const errorResponse = this._createErrorResponse(
+        status,
+        exception.code,
+        message,
+        request,
+      );
+
+      return response.status(status).json(errorResponse);
+    }
+
+    if (this.config.exception?.catchUnknown === false) {
+      const status: HttpStatus =
+        exception instanceof HttpException
+          ? exception.getStatus()
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+      const exceptionResponse =
+        exception instanceof HttpException
+          ? exception.getResponse()
+          : 'An unexpected error occurred';
+
+      return response.status(status).send(exceptionResponse);
+    }
+
+    const error =
+      this.config.exception?.unknownErrorMessage ||
+      NEST_UNIFORM_ERROR_CODES.INTERNAL_ERROR;
+
+    const errorResponse = this._createErrorResponse(
+      error.httpStatus,
+      error.code,
+      error.message,
+      request,
+    );
+
+    return response.status(error.httpStatus).json(errorResponse);
+  }
+
+  /**
+   * Check if the error page should be rendered.
+   * @param exception - The exception to check if the error page should be rendered.
+   * @param request - The request object.
+   * @returns The condition result.
+   */
+  private _shouldRenderErrorPage(
+    exception: unknown,
+    request: Request,
+  ): boolean {
+    const config = this.config.errorPage;
+
+    if (!config?.enabled || !(exception instanceof NotFoundException)) {
+      return false;
+    }
+
+    const contentType = request.headers['content-type'];
+
+    const allowAnyAccept = config.allowAnyAccept ?? false;
+    const shouldRenderHtml =
+      allowAnyAccept ||
+      (request.accepts('html') === 'html' &&
+        !contentType?.includes('application/json'));
+
+    return shouldRenderHtml;
+  }
+
+  /**
+   * Create the error response.
+   * @param statusCode - The status code of the error.
+   * @param errorCode - The error code of the error.
+   * @param message - The message of the error.
+   * @param request - The request object.
+   * @param details - The details of the error.
+   * @returns The error response.
+   */
+  private _createErrorResponse(
+    statusCode: number,
+    errorCode: string,
+    message: string,
+    request: Request,
+    details?: unknown,
+  ): NestUniformJson {
+    const responseBody: NestUniformJson = {
+      success: false,
+      statusCode,
+      errorCode,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      method: request.method,
+      message,
+    };
+
+    if (details) {
+      responseBody.details = details;
+    }
+
+    return responseBody;
+  }
+
+  /**
+   * Formats the error response from class-validator into a simple
+   * key-value object.
+   * @param response - The error response from class-validator.
+   * @returns A formatted object of validation errors.
+   */
+  private _formatErrorResponse(
+    response: string | ({ message: string[] } & object),
+  ) {
+    let message = '';
+    let details: string[] = [];
+
+    if (typeof response === 'string') {
+      message = response;
+    } else {
+      message = response.message[0];
+      details = response.message;
+    }
+
+    return { message, details };
+  }
+
+  /**
+   * Get the condition result from the exception.
+   * @param exception - The exception to get the condition result from.
+   * @param callingConfig - The calling config to get the condition result from.
+   * @param messageConfig - The message config to get the condition result from.
+   * @param globalConfig - The global config to get the condition result from.
+   * @returns The condition result.
+   */
+  private _getConditionResult({
+    exception,
+    callingConfig,
+    messageConfig,
+    globalConfig,
+  }: {
+    exception: NestUniformError;
+    callingConfig?: NestUniformExceptionConfig;
+    messageConfig?: NestUniformExceptionConfig;
+    globalConfig?: NestUniformExceptionConfig;
+  }) {
+    let message = exception.message;
+
+    const shouldReturnWithErrorCode =
+      callingConfig?.messageWithErrorCode ??
+      messageConfig?.messageWithErrorCode ??
+      globalConfig?.messageWithErrorCode;
+
+    if (shouldReturnWithErrorCode) {
+      message = `${message} Error Code: ${exception.code}`;
+    }
+
+    return { message };
+  }
+}

@@ -1,0 +1,19 @@
+export interface NestUniformResponseConfig {
+  /**
+   * If `true`, successful responses will be wrapped in the standard structure.
+   * Set to `false` to disable this behavior globally.
+   * @default false
+   */
+  useJsonWrapper?: boolean;
+}
+
+export type NestUniformJson = {
+  success: boolean;
+  statusCode: number;
+  errorCode: string;
+  timestamp: string;
+  path: string;
+  method: string;
+  message: string;
+  details?: unknown;
+};

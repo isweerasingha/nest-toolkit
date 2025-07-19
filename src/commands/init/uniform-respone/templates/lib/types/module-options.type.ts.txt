@@ -1,0 +1,27 @@
+import { NestUniformConfig } from './providers.types';
+
+/**
+ * Defines the options that can be passed to the `NestUniformResponseModule.forRoot()` method.
+ */
+export interface NestUniformResponseOptions {
+  /**
+   * If `true`, the module will be registered as a global module.
+   * This means you will not need to import it into other modules.
+   * @default false
+   */
+  isGlobal?: boolean;
+
+  /**
+   * The configuration for the module.
+   * @default {
+   *  exception: {
+   *    messageWithErrorCode: false,
+   *    catchValidation: false,
+   *  },
+   *  response: {
+   *    useJsonWrapper: false,
+   *  },
+   * }
+   */
+  config?: NestUniformConfig;
+}
