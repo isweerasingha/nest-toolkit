@@ -16,17 +16,36 @@ Nest.js Toolkit CLI is a command-line interface (CLI) built to accelerate your N
 - **Extensible Architecture:** Easily add new generators for modules, services, decorators, and more as your project grows.
 
 ---
-
 ## Installation
 
-To use the toolkit, install it globally on your system via NPM.
+1.  **Clone the Repository:**
 
-```bash
-npm install -g nest-toolkit
-```
+    ```bash
+    git clone https://github.com/isweerasingha/nest-toolkit.git
+    cd nextjs-app-toolkit
+    ```
 
-_(Note: The package name `nest-toolkit` is a placeholder until the package is published on NPM.)_
+2.  **Install Dependencies:**
 
+    ```bash
+    npm install
+    ```
+
+3.  **Build the Project:**
+    The build command compiles all TypeScript source files to JavaScript in the `dist/` folder and copies the necessary template files.
+
+    ```bash
+    npm run build
+    ```
+
+4.  **Link for Local Testing:**
+    This command makes your local version of the toolkit available as a global command on your system.
+
+    ```bash
+    npm link
+    ```
+
+    After linking, any changes you make to the source code will be active after you run `npm run build` again.
 ---
 
 ## Usage
@@ -78,38 +97,9 @@ libs/nest-uniform-response/
 
 ---
 
-## For Developers (Contributing)
+# For Developers (Contributing)
 
 Contributions are welcome\! If you'd like to help improve the toolkit, please follow these steps to set up a local development environment.
-
-1.  **Clone the Repository:**
-
-    ```bash
-    git clone https://github.com/isweerasingha/nest-toolkit.git
-    cd nextjs-app-toolkit
-    ```
-
-2.  **Install Dependencies:**
-
-    ```bash
-    npm install
-    ```
-
-3.  **Build the Project:**
-    The build command compiles all TypeScript source files to JavaScript in the `dist/` folder and copies the necessary template files.
-
-    ```bash
-    npm run build
-    ```
-
-4.  **Link for Local Testing:**
-    This command makes your local version of the toolkit available as a global command on your system.
-
-    ```bash
-    npm link
-    ```
-
-    After linking, any changes you make to the source code will be active after you run `npm run build` again.
 
 ---
 
